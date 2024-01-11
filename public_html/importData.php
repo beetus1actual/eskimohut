@@ -1,5 +1,7 @@
 <?php
 
+use App\Controllers\Database;
+use Carbon\Carbon;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 
 require 'init.php';
@@ -32,16 +34,33 @@ if (isset($_POST['importSubmit'])) {
             $spreadSheet = $reader->load($_FILES['file']['tmp_name']);
             $workSheet = $spreadSheet->getActiveSheet();
             $workSheetArray = $workSheet->rangeToArray('A30:I40');
+
+            $capsule = (new Database)->getManager();
             $cleanedEmpty = [];
 
             foreach ($workSheetArray as $data) {
                 if (isArrayNotNull($data)) {
-                    $cleanedEmpty[] = $data;
+                    $capsule->table('store_data')
+                        ->where('name', $data[0])
+                        ->updateOrInsert([
+                            'name' => $data[0],
+                            'monday' => $data[1],
+                            'tuesday' => $data[2],
+                            'wednesday' => $data[3],
+                            'thursday' => $data[4],
+                            'friday' => $data[5],
+                            'saturday' => $data[6],
+                            'sunday' => $data[7],
+                            'updated_at' => Carbon::now()->toDateTimeString(),
+                        ]);
                 }
             }
-
-            var_dump($cleanedEmpty);
+            $status = '?status=success';
+        } else {
+            $status = '?status=error';
         }
+    } else {
+        $status = '?status=invalidFile';
     }
 }
 

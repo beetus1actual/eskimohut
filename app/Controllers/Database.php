@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use Exception;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use Illuminate\Database\DatabaseManager;
 
 class Database
 {
@@ -12,16 +13,16 @@ class Database
     private $pass = 'EskimoHut';
     private $dbName = 'eskimohut_db';
 
-    protected $connection;
+    protected $capsule;
 
     /**
      * @throws Exception
      */
     public function __construct()
     {
-        if (!isset($this->connection)) {
-            $this->connection = new Capsule();
-            $this->connection->addConnection([
+        if (!isset($this->capsule)) {
+            $this->capsule = new Capsule();
+            $this->capsule->addConnection([
                 'driver' => 'mysql',
                 'host' => $this->host,
                 'database' => $this->dbName,
@@ -33,10 +34,15 @@ class Database
             ]);
         }
 
-        if (!$this->connection) {
+        if (!$this->capsule) {
             throw new Exception('Cannot connect to database.');
         }
 
-        return $this->connection;
+        return $this->capsule;
+    }
+
+    public function getManager(): DatabaseManager
+    {
+        return $this->capsule->getDatabaseManager();
     }
 }
