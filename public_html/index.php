@@ -2,17 +2,17 @@
 
 require 'init.php';
 
-if(!empty($_GET['status'])){
-    switch($_GET['status']){
-        case 'succ':
+if (!empty($_GET['status'])) {
+    switch ($_GET['status']) {
+        case 'success':
             $statusType = 'alert-success';
             $statusMsg = 'Member data has been imported successfully.';
             break;
-        case 'err':
+        case 'error':
             $statusType = 'alert-danger';
             $statusMsg = 'Something went wrong, please try again.';
             break;
-        case 'invalid_file':
+        case 'invalidFile':
             $statusType = 'alert-danger';
             $statusMsg = 'Please upload a valid Excel file.';
             break;
@@ -35,27 +35,32 @@ if(!empty($_GET['status'])){
 </head>
 <body>
 <h1>Schedules</h1>
+<?php if(!empty($statusMsg)){ ?>
+    <div class="col-xs-12 p-3">
+        <div class="alert <?php echo $statusType; ?>"><?php echo $statusMsg; ?></div>
+    </div>
+<?php } ?>
 <div class="btn-group">
     <button id="selectStore" type="button" class="btn btn-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
         Select Store
         <span class="spinner-border spinner-border-sm visually-hidden" aria-hidden="true"></span>
     </button>
     <ul class="dropdown-menu dropdown-centered">
-        <li><a class="dropdown-item" href="#" id="austin">Austin Norwood</a></li>
-        <li><a class="dropdown-item" href="#" id="beechnut">Beechnut</a></li>
-        <li><a class="dropdown-item" href="#" id="louetta">Louetta</a></li>
-        <li><a class="dropdown-item" href="#" id="barrow">Barrow</a></li>
-        <li><a class="dropdown-item" href="#" id="bosque">Bosque</a></li>
-        <li><a class="dropdown-item" href="#" id="ftworth">Ft Worth</a></li>
-        <li><a class="dropdown-item" href="#" id="sanangelo">San Angelo</a></li>
-        <li><a class="dropdown-item" href="#" id="sheik">Sheik</a></li>
-        <li><a class="dropdown-item" href="#" id="treadaway">Treadaway</a></li>
-        <li><a class="dropdown-item" href="#" id="western">Western</a></li>
+        <li><a class="dropdown-item" href="#">Austin Norwood</a></li>
+        <li><a class="dropdown-item" href="#">Beechnut</a></li>
+        <li><a class="dropdown-item" href="#">Louetta</a></li>
+        <li><a class="dropdown-item" href="#">Barrow</a></li>
+        <li><a class="dropdown-item" href="#">Bosque</a></li>
+        <li><a class="dropdown-item" href="#">Ft Worth</a></li>
+        <li><a class="dropdown-item" href="#">San Angelo</a></li>
+        <li><a class="dropdown-item" href="#">Sheik</a></li>
+        <li><a class="dropdown-item" href="#">Treadaway</a></li>
+        <li><a class="dropdown-item" href="#">Western</a></li>
         <li><hr class="dropdown-divider"></li>
         <li><a id="clear" class="dropdown-item" href="#">Clear Values</a> </li>
     </ul>
 </div>
-<table class="table table-hover table-striped">
+<table class="table table-hover table-striped" id="dataTable">
     <thead class="table-dark">
         <tr>
             <th scope="col"></th>
@@ -66,51 +71,10 @@ if(!empty($_GET['status'])){
             <th scope="col">Friday</th>
             <th scope="col">Saturday</th>
             <th scope="col">Sunday</th>
-            <th scope="col">TTL</th>
-            <th scope="col">LM</th>
-            <th scope="col">VAR</th>
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <th id="forcastedSales" scope="row">$</th>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-        </tr>
-        <tr>
-            <th id="dailyHours" scope="row">Daily Hours</th>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-        </tr>
-        <tr>
-            <th id="scheduledHours" scope="row">Scheduled Hours</th>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-            <td>test</td>
-        </tr>
+
     </tbody>
 </table>
 <div class="d-grid gap-2 d-md-flex">
@@ -118,12 +82,12 @@ if(!empty($_GET['status'])){
         <span class="spinner-border spinner-border-sm visually-hidden" aria-hidden="true"></span>
         <span role="status">Print</span>
     </button>
-    <button id="import" class="btn btn-info" type="button" onclick="formToggle('importFrm');">
+    <button id="import" class="btn btn-info" type="button" onclick="formToggle('importForm');">
         <span class="spinner-border spinner-border-sm visually-hidden" aria-hidden="true"></span>
         <a href="javascript:void(0);">Import Excel Sheet</a>
     </button>
 </div>
-<div class="col-md-12" id="importFrm" style="display: none;">
+<div class="col-md-12" id="importForm" style="display: none;">
     <form class="row g-3" action="importData.php" method="post" enctype="multipart/form-data">
         <div class="col-auto">
             <label for="fileInput" class="visually-hidden">File</label>
@@ -137,14 +101,29 @@ if(!empty($_GET['status'])){
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 <script>
     $('.dropdown-menu li a').click(function () {
-        const store = $(this).text();
-        const storeName = $(this).parents('.btn-group').find('#selectStore');
+        const store = $(this).text(),
+            storeName = $(this).parents('.btn-group').find('#selectStore');
+
         storeName.html('');
 
         if ($(this).text() === 'Clear Values') {
             storeName.html('Select Store');
+            jQuery('#dataTable tbody').html('');
         } else {
-            storeName.html(store);
+            $.ajax({
+                type: 'POST',
+                dataType: 'html',
+                beforeSend: function () {
+                    jQuery('#dataTable tbody').html('')
+                },
+                url: 'getStoreData.php',
+                data: {
+                    store: store,
+                }
+            }).done(function (result) {
+                storeName.html(store);
+                jQuery('#dataTable tbody').append(result);
+            });
         }
     });
 
@@ -155,9 +134,9 @@ if(!empty($_GET['status'])){
 
     function formToggle(ID){
         var element = document.getElementById(ID);
-        if(element.style.display === "none"){
+        if (element.style.display === "none") {
             element.style.display = "block";
-        }else{
+        } else {
             element.style.display = "none";
         }
     }
